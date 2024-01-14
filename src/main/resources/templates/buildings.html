@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8"/>
+    <title>Buildings List</title>
+</head>
+<body>
+<h1>Buildings List</h1>
+
+<table>
+    <tr>
+        <th>ID</th>
+        <th>Building ID</th>
+        <th>Building Description</th>
+        <th>Old Number</th>
+        <th>Valid From</th>
+        <th>Number of Floors</th>
+    </tr>
+    <tr th:each="building : ${buildings}">
+        <td th:text="${building.id}"></td>
+        <td th:text="${building.buildingID}"></td>
+        <td th:text="${building.buildingDescription}"></td>
+        <td th:text="${building.oldNumber}"></td>
+        <td th:text="${building.validFrom}"></td>
+        <td th:text="${building.numberOfFloors}"></td>
+    </tr>
+</table>
+
+</body>
+</html>

@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8"/>
+  <title>Units List</title>
+</head>
+<body>
+<h1>Units List</h1>
+
+<table>
+  <tr>
+    <th>ID</th>
+    <th>Unit Key</th>
+    <th>Old Number</th>
+    <th>Description</th>
+    <th>Blocking Date</th>
+    <th>Blocking Reason</th>
+    <th>Sales Phase</th>
+    <th>Construction Date</th>
+    <th>Unit Delivery Date</th>
+    <th>Area</th>
+    <th>Area Value</th>
+    <th>Number of Rooms</th>
+    <th>Price</th>
+    <th>Valid From</th>
+  </tr>
+  <tr th:each="unit : ${units}">
+    <td th:text="${unit.id}"></td>
+    <td th:text="${unit.unitKey}"></td>
+    <td th:text="${unit.oldNumber}"></td>
+    <td th:text="${unit.description}"></td>
+    <td th:text="${unit.blockingDate}"></td>
+    <td th:text="${unit.blockingReason}"></td>
+    <td th:text="${unit.salesPhase}"></td>
+    <td th:text="${unit.constructionDate}"></td>
+    <td th:text="${unit.unitDeliveryDate}"></td>
+    <td th:text="${unit.area}"></td>
+    <td th:text="${unit.areaValue}"></td>
+    <td th:text="${unit.noOfRooms}"></td>
+    <td th:text="${unit.price}"></td>
+    <td th:text="${unit.validFrom}"></td>
+  </tr>
+</table>
+
+</body>
+</html>

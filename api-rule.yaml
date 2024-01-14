@@ -1,0 +1,22 @@
+apiVersion: gateway.kyma-project.io/v1beta1
+kind: APIRule
+metadata:
+  name: 'dev'
+  labels: {}
+  annotations: {}
+  namespace: dev
+spec:
+  gateway: kyma-gateway.kyma-system.svc.cluster.local
+  host: dev.c-8339c63.kyma.ondemand.com
+  service:
+    name: dev
+    port: 8080
+  rules:
+    - path: /.*
+      methods:
+        - GET
+        - PUT
+        - POST
+        - DELETE
+      accessStrategies:
+        - handler: allow
