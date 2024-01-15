@@ -5,6 +5,7 @@
  */
 package com.sap.cloud.security.samples.resecurity.config;
 
+import com.sap.cloud.security.samples.resecurity.PasswordEncoderFactories;
 import com.sap.cloud.security.spring.config.IdentityServicesPropertySourceFactory;
 import com.sap.cloud.security.spring.token.authentication.AuthenticationToken;
 import com.sap.cloud.security.token.TokenClaims;
@@ -22,6 +23,7 @@ import org.springframework.security.config.annotation.web.configuration.WebSecur
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.security.web.SecurityFilterChain;
 
@@ -43,6 +45,11 @@ public class SecurityConfiguration {
     @Bean
     public WebSecurityCustomizer webSecurityCustomizer() {
         return (web) -> web.ignoring().requestMatchers("/iasusers");
+    }
+
+    @Bean
+    PasswordEncoder passwordEncoder(){
+        return PasswordEncoderFactories.createDelegatingPasswordEncoder();
     }
 
     @Bean
