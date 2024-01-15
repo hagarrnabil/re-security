@@ -40,10 +40,10 @@ public class SecurityConfiguration {
     @Autowired
     Converter<Jwt, AbstractAuthenticationToken> authConverter; // Required only when Xsuaa is used
 
-//    @Bean
-//    public WebSecurityCustomizer webSecurityCustomizer() {
-//        return (web) -> web.ignoring().requestMatchers("/iasUsers");
-//    }
+    @Bean
+    public WebSecurityCustomizer webSecurityCustomizer() {
+        return (web) -> web.ignoring().requestMatchers("/iasusers");
+    }
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
@@ -71,7 +71,6 @@ public class SecurityConfiguration {
                                 .requestMatchers("/buildingareas/*").hasAuthority("Read")
                                 .requestMatchers("/unitareas/*").hasAuthority("Read")
                                 .requestMatchers("/measurements/*").hasAuthority("Read")
-                                .requestMatchers("/iasusers/*").hasAuthority("Read")
                                 .requestMatchers("/*").authenticated()
                                 .anyRequest().denyAll())
                 .oauth2ResourceServer()
