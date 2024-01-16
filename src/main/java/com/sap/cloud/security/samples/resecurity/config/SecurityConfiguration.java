@@ -23,8 +23,11 @@ import org.springframework.security.config.annotation.web.configuration.WebSecur
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.userdetails.User;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.oauth2.jwt.Jwt;
+import org.springframework.security.provisioning.InMemoryUserDetailsManager;
 import org.springframework.security.web.SecurityFilterChain;
 
 import java.util.ArrayList;
@@ -36,11 +39,34 @@ import java.util.stream.Collectors;
 @Configuration
 @EnableWebSecurity(debug = true) // TODO "debug" may include sensitive information. Do not use in a production system!
 @EnableMethodSecurity(securedEnabled = true, jsr250Enabled = true)
-@PropertySource(factory = IdentityServicesPropertySourceFactory.class, ignoreResourceNotFound = true, value = { "" })
+@PropertySource(factory = IdentityServicesPropertySourceFactory.class, ignoreResourceNotFound = true, value = {""})
 public class SecurityConfiguration {
 
     @Autowired
     Converter<Jwt, AbstractAuthenticationToken> authConverter; // Required only when Xsuaa is used
+
+    @Bean
+    public InMemoryUserDetailsManager userDetailsService(BCryptPasswordEncoder bCryptPasswordEncoder) {
+        InMemoryUserDetailsManager manager = new InMemoryUserDetailsManager();
+        manager.createUser(User.withUsername("user")
+                .password(bCryptPasswordEncoder.encode("userPass"))
+                .roles("USER")
+                .build());
+        manager.createUser(User.withUsername("admin")
+                .password(bCryptPasswordEncoder.encode("adminPass"))
+                .roles("ADMIN")
+                .build());
+        manager.createUser(User.withUsername("sales_admin")
+                .password(bCryptPasswordEncoder.encode("salesPass"))
+                .roles("ADMIN")
+                .build());
+        return manager;
+    }
+
+    @Bean
+    public BCryptPasswordEncoder bCryptPasswordEncoder() {
+        return new BCryptPasswordEncoder();
+    }
 
     @Bean
     public WebSecurityCustomizer webSecurityCustomizer() {
@@ -48,7 +74,7 @@ public class SecurityConfiguration {
     }
 
     @Bean
-    PasswordEncoder passwordEncoder(){
+    PasswordEncoder passwordEncoder() {
         return PasswordEncoderFactories.createDelegatingPasswordEncoder();
     }
 
@@ -59,7 +85,7 @@ public class SecurityConfiguration {
                 .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 .and()
                 .authorizeHttpRequests(authz ->
-                        authz.requestMatchers("/companies/*").hasAuthority("Read")
+                        authz.requestMatchers("/companies/*").hasRole("ADMIN")
                                 .requestMatchers("/locations/*").hasAuthority("Read")
                                 .requestMatchers("/profits/*").hasAuthority("Read")
                                 .requestMatchers("/projects/*").hasAuthority("Read")

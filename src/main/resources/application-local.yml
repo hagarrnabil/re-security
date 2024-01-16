@@ -6,7 +6,7 @@ spring:
     url: jdbc:h2:mem:testdb
 
 logging.level:
-  com.sap: DEBUG
+  com.sap.cloud.security.samples.resecurity: DEBUG
   org.springframework: ERROR
   org.springframework.security: DEBUG
   org.springframework.web: DEBUG
