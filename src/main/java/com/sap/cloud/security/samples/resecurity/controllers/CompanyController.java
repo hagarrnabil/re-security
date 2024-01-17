@@ -32,24 +32,28 @@ public class CompanyController {
         this.companyService = companyService;
     }
 
+
+
+    @GetMapping("/companies")
     @PreAuthorize("hasRole('ROLE_ADMIN')")
 //    @PreAuthorize("hasAuthority('Admin')")
-    @GetMapping("/companies")
     Set<CompanyCommand> all() {
         return companyService.getCompanyCommands();
     }
 
+
+    @GetMapping("/companies/{companyCode}")
     @PreAuthorize("hasRole('ROLE_ADMIN')")
 //    @PreAuthorize("hasAuthority('Admin')")
-    @GetMapping("/companies/{companyCode}")
     public Optional<CompanyCommand> findByIds(@PathVariable @NotNull Long companyCode) {
 
         return Optional.ofNullable(companyService.findCompanyCommandById(companyCode));
     }
 
+
+    @PostMapping("/companies")
     @PreAuthorize("hasRole('ROLE_ADMIN')")
 //    @PreAuthorize("hasAuthority('Admin')")
-    @PostMapping("/companies")
     CompanyCommand newCompanyCommand(@RequestBody CompanyCommand newCompanyCommand) {
 
         CompanyCommand savedCommand = companyService.saveCompanyCommand(newCompanyCommand);
@@ -57,17 +61,19 @@ public class CompanyController {
 
     }
 
+
+    @DeleteMapping("/companies/{companyCode}")
     @PreAuthorize("hasRole('ROLE_ADMIN')")
 //    @PreAuthorize("hasAuthority('Admin')")
-    @DeleteMapping("/companies/{companyCode}")
     void deleteCompanyCommand(@PathVariable Long companyCode) {
         companyService.deleteById(companyCode);
     }
 
-    @PreAuthorize("hasRole('ROLE_ADMIN')")
-//    @PreAuthorize("hasAuthority('Admin')")
+
     @PutMapping
     @RequestMapping("/companies/{companyCode}")
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
+//    @PreAuthorize("hasAuthority('Admin')")
     @Transactional
     CompanyCommand updateCompany(@RequestBody CompanyCommand newCompanyCommand, @PathVariable Long companyCode) {
 

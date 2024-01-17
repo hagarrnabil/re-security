@@ -6,6 +6,7 @@
 package com.sap.cloud.security.samples.resecurity.config;
 
 import com.sap.cloud.security.samples.resecurity.PasswordEncoderFactories;
+import com.sap.cloud.security.samples.resecurity.services.security.JpaUserDetailsService;
 import com.sap.cloud.security.spring.config.IdentityServicesPropertySourceFactory;
 import com.sap.cloud.security.spring.token.authentication.AuthenticationToken;
 import com.sap.cloud.security.token.TokenClaims;
@@ -16,24 +17,30 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.PropertySource;
 import org.springframework.core.convert.converter.Converter;
 import org.springframework.security.authentication.AbstractAuthenticationToken;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityCustomizer;
 import org.springframework.security.config.http.SessionCreationPolicy;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.User;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.security.provisioning.InMemoryUserDetailsManager;
 import org.springframework.security.web.SecurityFilterChain;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.List;
+import org.springframework.security.oauth2.server.authorization.OAuth2TokenType;
+import org.springframework.security.oauth2.server.authorization.token.JwtEncodingContext;
+import org.springframework.security.oauth2.server.authorization.token.OAuth2TokenCustomizer;
+
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Configuration
@@ -45,8 +52,29 @@ public class SecurityConfiguration {
     @Autowired
     Converter<Jwt, AbstractAuthenticationToken> authConverter; // Required only when Xsuaa is used
 
+    @Autowired
+    JpaUserDetailsService jpaUserDetailsService;
+
+    @Bean
+    PasswordEncoder passwordEncoder() {
+        return PasswordEncoderFactories.createDelegatingPasswordEncoder();
+    }
+
+
+    @Bean
+    public AuthenticationManager authenticationManager(HttpSecurity http, JpaUserDetailsService jpaUserDetailsService)
+            throws Exception {
+        return http.getSharedObject(AuthenticationManagerBuilder.class)
+                .userDetailsService(jpaUserDetailsService)
+                .passwordEncoder(passwordEncoder())
+                .and()
+                .build();
+    }
+
+
     @Bean
     public InMemoryUserDetailsManager userDetailsService(BCryptPasswordEncoder bCryptPasswordEncoder) {
+
         InMemoryUserDetailsManager manager = new InMemoryUserDetailsManager();
         manager.createUser(User.withUsername("user")
                 .password(bCryptPasswordEncoder.encode("userPass"))
@@ -74,18 +102,13 @@ public class SecurityConfiguration {
     }
 
     @Bean
-    PasswordEncoder passwordEncoder() {
-        return PasswordEncoderFactories.createDelegatingPasswordEncoder();
-    }
-
-    @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         // @formatter:off
         http.sessionManagement()
                 .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 .and()
                 .authorizeHttpRequests(authz ->
-                        authz.requestMatchers("/companies/*").hasRole("ADMIN")
+                        authz.requestMatchers("/companies/*").hasAuthority("Admin")
                                 .requestMatchers("/locations/*").hasAuthority("Read")
                                 .requestMatchers("/profits/*").hasAuthority("Read")
                                 .requestMatchers("/projects/*").hasAuthority("Read")
@@ -116,6 +139,35 @@ public class SecurityConfiguration {
                 "/projectareas/*","/buildingareas/*","/unitareas/*","/measurements/*","/iasusers/*");
 
         return http.build();
+    }
+
+
+//    @Configuration
+//    public class CustomClaimsConfiguration {
+//        @Bean
+//        public OAuth2TokenCustomizer<JwtEncodingContext> jwtTokenCustomizer() {
+//            return (context) -> {
+//                if (OAuth2TokenType.ACCESS_TOKEN.equals(context.getTokenType())) {
+//                    context.getClaims().claims((claims) -> {
+//                        claims.put("claim-1", "value-1");
+//                        claims.put("claim-2", "value-2");
+//                    });
+//                }
+//            };
+//        }
+//    }
+
+    @Bean
+    OAuth2TokenCustomizer<JwtEncodingContext> jwtCustomizer() {
+        return context -> {
+            if (context.getTokenType() == OAuth2TokenType.ACCESS_TOKEN) {
+                Authentication principal = context.getPrincipal();
+                Set<String> authorities = principal.getAuthorities().stream()
+                        .map(GrantedAuthority::getAuthority)
+                        .collect(Collectors.toSet());
+                context.getClaims().claim("roles", authorities);
+            }
+        };
     }
 
     /**

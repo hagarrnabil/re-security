@@ -5,6 +5,7 @@ import com.sap.cloud.security.samples.resecurity.converters.ProfitToProfitComman
 import com.sap.cloud.security.samples.resecurity.repositories.ProfitCenterRepository;
 import com.sap.cloud.security.samples.resecurity.services.ProfitService;
 import jakarta.validation.constraints.NotNull;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
@@ -26,17 +27,21 @@ public class ProfitCenterController {
     }
 
     @GetMapping("/profits")
+    @PreAuthorize("hasRole('ROLE_USER')")
+//    @PreAuthorize("hasAuthority('Read')")
     Set<ProfitCenterCommand> all() {
         return profitService.getProfitCommands();
     }
 
     @GetMapping("/profits/{profitCode}")
+    @PreAuthorize("hasAuthority('Read')")
     public Optional<ProfitCenterCommand> findByIds(@PathVariable @NotNull Long profitCode) {
 
         return Optional.ofNullable(profitService.findProfitCommandById(profitCode));
     }
 
     @PostMapping("/profits")
+    @PreAuthorize("hasAuthority('Read')")
     ProfitCenterCommand newProfitCommand(@RequestBody ProfitCenterCommand newProfitCommand) {
 
         ProfitCenterCommand savedCommand = profitService.saveProfitCommand(newProfitCommand);
@@ -45,12 +50,14 @@ public class ProfitCenterController {
     }
 
     @DeleteMapping("/profits/{profitCode}")
+    @PreAuthorize("hasAuthority('Read')")
     void deleteProfitCommand(@PathVariable Long profitCode) {
         profitService.deleteById(profitCode);
     }
 
     @PutMapping
     @RequestMapping("/profits/{profitCode}")
+    @PreAuthorize("hasAuthority('Read')")
     @Transactional
     ProfitCenterCommand updateProfitCommand(@RequestBody ProfitCenterCommand newProfitCommand, @PathVariable Long profitCode) {
 
