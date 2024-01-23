@@ -27,21 +27,23 @@ public class ProfitCenterController {
     }
 
     @GetMapping("/profits")
-    @PreAuthorize("hasRole('ROLE_USER')")
-//    @PreAuthorize("hasAuthority('Read')")
+    @PreAuthorize("hasAuthority('User')")
+//    @PreAuthorize("hasRole('ROLE_USER')")
     Set<ProfitCenterCommand> all() {
         return profitService.getProfitCommands();
     }
 
     @GetMapping("/profits/{profitCode}")
-    @PreAuthorize("hasAuthority('Read')")
+    @PreAuthorize("hasAuthority('User')")
+//    @PreAuthorize("hasRole('ROLE_USER')")
     public Optional<ProfitCenterCommand> findByIds(@PathVariable @NotNull Long profitCode) {
 
         return Optional.ofNullable(profitService.findProfitCommandById(profitCode));
     }
 
     @PostMapping("/profits")
-    @PreAuthorize("hasAuthority('Read')")
+    @PreAuthorize("hasAuthority('User')")
+//    @PreAuthorize("hasRole('ROLE_USER')")
     ProfitCenterCommand newProfitCommand(@RequestBody ProfitCenterCommand newProfitCommand) {
 
         ProfitCenterCommand savedCommand = profitService.saveProfitCommand(newProfitCommand);
@@ -50,14 +52,16 @@ public class ProfitCenterController {
     }
 
     @DeleteMapping("/profits/{profitCode}")
-    @PreAuthorize("hasAuthority('Read')")
+    @PreAuthorize("hasAuthority('User')")
+//    @PreAuthorize("hasRole('ROLE_USER')")
     void deleteProfitCommand(@PathVariable Long profitCode) {
         profitService.deleteById(profitCode);
     }
 
     @PutMapping
     @RequestMapping("/profits/{profitCode}")
-    @PreAuthorize("hasAuthority('Read')")
+    @PreAuthorize("hasAuthority('User')")
+//    @PreAuthorize("hasRole('ROLE_USER')")
     @Transactional
     ProfitCenterCommand updateProfitCommand(@RequestBody ProfitCenterCommand newProfitCommand, @PathVariable Long profitCode) {
 

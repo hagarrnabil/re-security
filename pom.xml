@@ -104,6 +104,11 @@
         <version>1.0.2</version>
         </dependency>
         <dependency>
+            <groupId>io.jsonwebtoken</groupId>
+            <artifactId>jjwt</artifactId>
+            <version>0.9.1</version>
+        </dependency>
+        <dependency>
             <groupId>com.sap.hcp.cf.logging</groupId>
             <artifactId>cf-java-logging-support-servlet-jakarta</artifactId>
             <version>3.7.0</version>

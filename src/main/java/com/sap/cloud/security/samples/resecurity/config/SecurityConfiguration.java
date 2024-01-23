@@ -5,6 +5,8 @@
  */
 package com.sap.cloud.security.samples.resecurity.config;
 
+//import com.sap.cloud.security.samples.resecurity.PasswordEncoderFactories;
+//import com.sap.cloud.security.samples.resecurity.services.security.JpaUserDetailsService;
 import com.sap.cloud.security.samples.resecurity.PasswordEncoderFactories;
 import com.sap.cloud.security.samples.resecurity.services.security.JpaUserDetailsService;
 import com.sap.cloud.security.spring.config.IdentityServicesPropertySourceFactory;
@@ -18,7 +20,10 @@ import org.springframework.context.annotation.PropertySource;
 import org.springframework.core.convert.converter.Converter;
 import org.springframework.security.authentication.AbstractAuthenticationToken;
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.ProviderManager;
+import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
+import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
@@ -46,6 +51,7 @@ import java.util.stream.Collectors;
 @Configuration
 @EnableWebSecurity(debug = true) // TODO "debug" may include sensitive information. Do not use in a production system!
 @EnableMethodSecurity(securedEnabled = true, jsr250Enabled = true)
+@EnableGlobalMethodSecurity(prePostEnabled = true, securedEnabled = true, jsr250Enabled = true)
 @PropertySource(factory = IdentityServicesPropertySourceFactory.class, ignoreResourceNotFound = true, value = {""})
 public class SecurityConfiguration {
 
@@ -72,29 +78,20 @@ public class SecurityConfiguration {
     }
 
 
-    @Bean
-    public InMemoryUserDetailsManager userDetailsService(BCryptPasswordEncoder bCryptPasswordEncoder) {
+//    @Bean
+//    public InMemoryUserDetailsManager userDetailsService(BCryptPasswordEncoder bCryptPasswordEncoder) {
+//
+//        return new InMemoryUserDetailsManager(
+//                User.withUsername("user").password(bCryptPasswordEncoder.encode("1234")).roles("USER").build(),
+//                User.withUsername("salesAdmin").password(bCryptPasswordEncoder.encode("1234")).roles("SALESADMIN").build(),
+//                User.withUsername("admin").password(bCryptPasswordEncoder.encode("1234")).roles("ADMIN").build()
+//        );
+//    }
 
-        InMemoryUserDetailsManager manager = new InMemoryUserDetailsManager();
-        manager.createUser(User.withUsername("user")
-                .password(bCryptPasswordEncoder.encode("userPass"))
-                .roles("USER")
-                .build());
-        manager.createUser(User.withUsername("admin")
-                .password(bCryptPasswordEncoder.encode("adminPass"))
-                .roles("ADMIN")
-                .build());
-        manager.createUser(User.withUsername("sales_admin")
-                .password(bCryptPasswordEncoder.encode("salesPass"))
-                .roles("ADMIN")
-                .build());
-        return manager;
-    }
-
-    @Bean
-    public BCryptPasswordEncoder bCryptPasswordEncoder() {
-        return new BCryptPasswordEncoder();
-    }
+//    @Bean
+//    public BCryptPasswordEncoder bCryptPasswordEncoder() {
+//        return new BCryptPasswordEncoder();
+//    }
 
     @Bean
     public WebSecurityCustomizer webSecurityCustomizer() {
@@ -108,35 +105,36 @@ public class SecurityConfiguration {
                 .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 .and()
                 .authorizeHttpRequests(authz ->
-                        authz.requestMatchers("/companies/*").hasAuthority("Admin")
-                                .requestMatchers("/locations/*").hasAuthority("Read")
-                                .requestMatchers("/profits/*").hasAuthority("Read")
-                                .requestMatchers("/projects/*").hasAuthority("Read")
-                                .requestMatchers("/buildings/*").hasAuthority("Read")
-                                .requestMatchers("/buildingtypes/*").hasAuthority("Read")
-                                .requestMatchers("/units/*").hasAuthority("Read")
-                                .requestMatchers("/unitorientations/*").hasAuthority("Read")
-                                .requestMatchers("/unitfixture/*").hasAuthority("Read")
-                                .requestMatchers("/unitstatuses/*").hasAuthority("Read")
-                                .requestMatchers("/unitviews/*").hasAuthority("Read")
-                                .requestMatchers("/usagetype/*").hasAuthority("Read")
-                                .requestMatchers("/unitsubtypes/*").hasAuthority("Read")
-                                .requestMatchers("/unitfloors/*").hasAuthority("Read")
-                                .requestMatchers("/areas/*").hasAuthority("Read")
-                                .requestMatchers("/projectareas/*").hasAuthority("Read")
-                                .requestMatchers("/buildingareas/*").hasAuthority("Read")
-                                .requestMatchers("/unitareas/*").hasAuthority("Read")
-                                .requestMatchers("/measurements/*").hasAuthority("Read")
+                        authz.requestMatchers("/companies/*").hasRole("ADMIN")
+                                .requestMatchers("/locations/*").hasRole("USER")
+                                .requestMatchers("/profits/*").hasRole("USER")
+                                .requestMatchers("/projects/*").hasRole("USER")
+                                .requestMatchers("/buildings/*").hasRole("USER")
+                                .requestMatchers("/buildingtypes/*").hasRole("USER")
+                                .requestMatchers("/units/*").hasRole("USER")
+                                .requestMatchers("/unitorientations/*").hasRole("USER")
+                                .requestMatchers("/unitfixture/*").hasRole("USER")
+                                .requestMatchers("/unitstatuses/*").hasRole("USER")
+                                .requestMatchers("/unitviews/*").hasRole("USER")
+                                .requestMatchers("/usagetype/*").hasRole("USER")
+                                .requestMatchers("/unitsubtypes/*").hasRole("USER")
+                                .requestMatchers("/unitfloors/*").hasRole("USER")
+                                .requestMatchers("/areas/*").hasRole("USER")
+                                .requestMatchers("/projectareas/*").hasRole("USER")
+                                .requestMatchers("/buildingareas/*").hasRole("USER")
+                                .requestMatchers("/unitareas/*").hasRole("USER")
+                                .requestMatchers("/measurements/*").hasRole("USER")
                                 .requestMatchers("/*").authenticated()
                                 .anyRequest().denyAll())
                 .oauth2ResourceServer()
                 .jwt()
                 .jwtAuthenticationConverter(new MyCustomHybridTokenAuthenticationConverter());
 
-        http.csrf().ignoringRequestMatchers("/companies/*","/locations/*","/profits/*","/projects/*",
-                "/buildings/*","/buildingtypes/*","/units/*","/unitorientations/*","/unitfixture/*",
-                "/unitstatuses/*","/unitviews/*","/usagetype/*","/unitsubtypes/*","/unitfloors/*","/areas/*",
-                "/projectareas/*","/buildingareas/*","/unitareas/*","/measurements/*","/iasusers/*");
+        http.csrf().disable();
+//        http.csrf().ignoringRequestMatchers("/companies/*","/locations/*","/profits/*","/projects/*",
+//                "/buildings/*","/buildingtypes/*","/units/*","/unitorientations/*","/unitfixture/*",
+//                "/unitstatuses/*","/unitviews/*","/usagetype/*","/unitsubtypes/*","/unitfloors/*","/areas/*",
+//                "/projectareas/*","/buildingareas/*","/unitareas/*","/measurements/*","/iasusers/*");
 
         return http.build();
     }
@@ -157,18 +155,18 @@ public class SecurityConfiguration {
 //        }
 //    }
 
-    @Bean
-    OAuth2TokenCustomizer<JwtEncodingContext> jwtCustomizer() {
-        return context -> {
-            if (context.getTokenType() == OAuth2TokenType.ACCESS_TOKEN) {
-                Authentication principal = context.getPrincipal();
-                Set<String> authorities = principal.getAuthorities().stream()
-                        .map(GrantedAuthority::getAuthority)
-                        .collect(Collectors.toSet());
-                context.getClaims().claim("roles", authorities);
-            }
-        };
-    }
+//    @Bean
+//    OAuth2TokenCustomizer<JwtEncodingContext> jwtCustomizer() {
+//        return context -> {
+//            if (context.getTokenType() == OAuth2TokenType.ACCESS_TOKEN) {
+//                Authentication principal = context.getPrincipal();
+//                Set<String> authorities = principal.getAuthorities().stream()
+//                        .map(GrantedAuthority::getAuthority)
+//                        .collect(Collectors.toSet());
+//                context.getClaims().claim("roles", authorities);
+//            }
+//        };
+//    }
 
     /**
      * Workaround for hybrid use case until Cloud Authorization Service is globally available.

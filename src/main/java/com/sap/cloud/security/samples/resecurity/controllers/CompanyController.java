@@ -35,16 +35,16 @@ public class CompanyController {
 
 
     @GetMapping("/companies")
-    @PreAuthorize("hasRole('ROLE_ADMIN')")
-//    @PreAuthorize("hasAuthority('Admin')")
+    @PreAuthorize("hasAuthority('Admin')")
+//    @PreAuthorize("hasRole('ROLE_ADMIN')")
     Set<CompanyCommand> all() {
         return companyService.getCompanyCommands();
     }
 
 
     @GetMapping("/companies/{companyCode}")
-    @PreAuthorize("hasRole('ROLE_ADMIN')")
-//    @PreAuthorize("hasAuthority('Admin')")
+    @PreAuthorize("hasAuthority('Admin')")
+//    @PreAuthorize("hasRole('ROLE_ADMIN')")
     public Optional<CompanyCommand> findByIds(@PathVariable @NotNull Long companyCode) {
 
         return Optional.ofNullable(companyService.findCompanyCommandById(companyCode));
@@ -52,8 +52,8 @@ public class CompanyController {
 
 
     @PostMapping("/companies")
-    @PreAuthorize("hasRole('ROLE_ADMIN')")
-//    @PreAuthorize("hasAuthority('Admin')")
+    @PreAuthorize("hasAuthority('Admin')")
+//    @PreAuthorize("hasRole('ROLE_ADMIN')")
     CompanyCommand newCompanyCommand(@RequestBody CompanyCommand newCompanyCommand) {
 
         CompanyCommand savedCommand = companyService.saveCompanyCommand(newCompanyCommand);
@@ -63,8 +63,8 @@ public class CompanyController {
 
 
     @DeleteMapping("/companies/{companyCode}")
-    @PreAuthorize("hasRole('ROLE_ADMIN')")
-//    @PreAuthorize("hasAuthority('Admin')")
+    @PreAuthorize("hasAuthority('Admin')")
+//    @PreAuthorize("hasRole('ROLE_ADMIN')")
     void deleteCompanyCommand(@PathVariable Long companyCode) {
         companyService.deleteById(companyCode);
     }
@@ -72,8 +72,8 @@ public class CompanyController {
 
     @PutMapping
     @RequestMapping("/companies/{companyCode}")
-    @PreAuthorize("hasRole('ROLE_ADMIN')")
-//    @PreAuthorize("hasAuthority('Admin')")
+    @PreAuthorize("hasAuthority('Admin')")
+//    @PreAuthorize("hasRole('ROLE_ADMIN')")
     @Transactional
     CompanyCommand updateCompany(@RequestBody CompanyCommand newCompanyCommand, @PathVariable Long companyCode) {
 
